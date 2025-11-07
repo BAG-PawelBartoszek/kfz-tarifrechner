@@ -62,7 +62,7 @@ public class Tarifierung {
         return kasko;
     }
 
-    public void berechneTarifierung() {
+    private void berechneTarifierung() {
         ValidationService.validate(this);
         this.gesamtpraemie = berechneGesamtpraemie();
         this.nettopraemie = berechneNettopraemie();
