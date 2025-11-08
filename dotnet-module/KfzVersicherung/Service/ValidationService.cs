@@ -5,15 +5,16 @@ namespace DotnetModule.Service;
 
 public static class ValidationService
 {
-    public static void Validate<T>(T obj, string? propertyPrefix = null)
+    public static void Validate(object obj, string? context = null)
     {
-        var context = new ValidationContext(obj);
-        var results = new List<ValidationResult>();
+        var validationContext = new ValidationContext(obj);
+        var validationResults = new List<ValidationResult>();
 
-        if (!Validator.TryValidateObject(obj, context, results, true))
+        if (!Validator.TryValidateObject(obj, validationContext, validationResults, true))
         {
-            var fehler = results
-                .Select(r => FormatFehler(r, propertyPrefix))
+            var fehler = validationResults
+                .Where(r => r.ErrorMessage != null)
+                .Select(r => FormatErrorMessage(r.ErrorMessage!, r.MemberNames.FirstOrDefault(), context, obj))
                 .ToList();
 
             throw new PlausiException(fehler);
@@ -59,5 +60,51 @@ public static class ValidationService
             return "Rabatt für die Kasko darf nicht größer 99 sein";
         
         return message;
+    }
+    
+    private static string FormatErrorMessage(string errorMessage, string? memberName, string? context, object obj)
+    {
+        // Custom handling for Rabatt validation
+        if (memberName == "Rabatt" && errorMessage.Contains("zwischen 0 und 99"))
+        {
+            var rabattProperty = obj.GetType().GetProperty("Rabatt");
+            if (rabattProperty != null)
+            {
+                var rabattValue = (int)rabattProperty.GetValue(obj)!;
+            
+                string produktName = context ?? obj.GetType().Name;
+                produktName = produktName.ToLower() == "haftpflicht" ? "die Haftpflicht" : 
+                    produktName.ToLower() == "kasko" ? "die Kasko" : produktName;
+            
+                if (rabattValue < 0)
+                {
+                    return $"Rabatt für {produktName} darf nicht negativ sein";
+                }
+                else if (rabattValue > 99)
+                {
+                    return $"Rabatt für {produktName} darf nicht größer 99 sein";
+                }
+            }
+        }
+    
+        // Custom handling for Praemie validation
+        if (memberName == "Praemie" && errorMessage.Contains("positiv"))
+        {
+            string produktName = context ?? obj.GetType().Name;
+            produktName = produktName.ToLower() == "haftpflicht" ? "die Haftpflicht" : 
+                produktName.ToLower() == "kasko" ? "die Kasko" : produktName;
+        
+            return $"Prämie für {produktName} muss positiv sein";
+        }
+    
+        // Default formatting
+        if (!string.IsNullOrEmpty(context))
+        {
+            context = context.ToLower() == "haftpflicht" ? "die Haftpflicht" : 
+                context.ToLower() == "kasko" ? "die Kasko" : context;
+            return $"{errorMessage} für {context}";
+        }
+    
+        return errorMessage;
     }
 }

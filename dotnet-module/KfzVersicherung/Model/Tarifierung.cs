@@ -49,11 +49,53 @@ public class Tarifierung
 
     private void ValidateAll()
     {
-        ValidationService.Validate(this);
-        ValidationService.Validate(Haftpflicht, "haftpflicht");
+        var allFehler = new List<string>();
+
+        // Validate that Haftpflicht is not null first
+        if (Haftpflicht == null)
+        {
+            allFehler.Add("Haftpflicht ist Pflichtfeld");
+        }
+
+        // Collect all validation errors without throwing immediately
+        try
+        {
+            ValidationService.Validate(this);
+        }
+        catch (PlausiException ex)
+        {
+            allFehler.AddRange(ex.Fehler);
+        }
+
+        // Only validate Haftpflicht if it's not null
+        if (Haftpflicht != null)
+        {
+            try
+            {
+                ValidationService.Validate(Haftpflicht, "haftpflicht");
+            }
+            catch (PlausiException ex)
+            {
+                allFehler.AddRange(ex.Fehler);
+            }
+        }
+
         if (Kasko != null)
         {
-            ValidationService.Validate(Kasko, "kasko");
+            try
+            {
+                ValidationService.Validate(Kasko, "kasko");
+            }
+            catch (PlausiException ex)
+            {
+                allFehler.AddRange(ex.Fehler);
+            }
+        }
+
+        // If any errors were collected, throw them all at once
+        if (allFehler.Count > 0)
+        {
+            throw new PlausiException(allFehler);
         }
     }
 
