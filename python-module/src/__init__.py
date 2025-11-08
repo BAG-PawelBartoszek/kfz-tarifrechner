@@ -1,0 +1,1 @@
+"""KFZ Versicherung Tarifrechner"""

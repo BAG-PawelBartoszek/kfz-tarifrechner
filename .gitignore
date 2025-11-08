@@ -48,6 +48,7 @@ wheels/
 .installed.cfg
 *.egg
 .pytest_cache/
+/python-module/.idea
 
 # Dotnet
 /dotnet-module/KfzVersicherung/obj
@@ -57,3 +58,4 @@ wheels/
 /dotnet-module/.idea
 /dotnet-module/KfzVersicherung.Tests/bin
 /dotnet-module/KfzVersicherung.Tests/obj
+/dotnet-module/delegationsrechner.sln.DotSettings.user
