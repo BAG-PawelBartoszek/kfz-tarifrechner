@@ -48,3 +48,12 @@ wheels/
 .installed.cfg
 *.egg
 .pytest_cache/
+
+# Dotnet
+/dotnet-module/KfzVersicherung/obj
+/dotnet-module/obj
+/dotnet-module/KfzVersicherung/bin
+/dotnet-module/bin
+/dotnet-module/.idea
+/dotnet-module/KfzVersicherung.Tests/bin
+/dotnet-module/KfzVersicherung.Tests/obj
