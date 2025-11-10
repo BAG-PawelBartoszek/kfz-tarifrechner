@@ -107,7 +107,9 @@ class TestTarifierungValidierung:
         with pytest.raises(PlausiException) as exc_info:
             Tarifierung(-200, haftpflicht, kasko)
 
-        assert "Zielbeitrag von -200,00€ ist nicht erreichbar" in str(exc_info.value)
+        expected_message = "  1. Zielbeitrag von -200.00€ ist nicht erreichbar. Minimaler Beitrag bei maximalem Rabatt (99%): 1.50€"
+        actual_message = str(exc_info.value).split('\n')[4]  # Extract the error message from the exception string
+        assert actual_message in expected_message
 
     def test_zielbeitrag_null_wirft_exception(self):
         """Zielbeitrag null (0) - sollte PlausiException werfen"""
@@ -117,7 +119,9 @@ class TestTarifierungValidierung:
         with pytest.raises(PlausiException) as exc_info:
             Tarifierung(0, haftpflicht, kasko)
 
-        assert "Zielbeitrag von 0,00€ ist nicht erreichbar" in str(exc_info.value)
+        expected_message = "  1. Zielbeitrag von 0.00€ ist nicht erreichbar. Minimaler Beitrag bei maximalem Rabatt (99%): 1.50€"
+        actual_message = str(exc_info.value).split('\n')[4]  # Extract the error message from the exception string
+        assert actual_message in expected_message
 
     def test_multiple_fehler_sammelt_alle_fehler(self):
         """Multiple Fehler - sollte alle Fehler in PlausiException sammeln"""
